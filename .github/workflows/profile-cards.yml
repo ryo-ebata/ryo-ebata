@@ -7,7 +7,7 @@ on:
   push:
     paths:
       - README.md
-      - .github/workflows/profile-summary-cards.yml
+      - .github/workflows/profile-cards.yml
 
 permissions:
   contents: write
