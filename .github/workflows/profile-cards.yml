@@ -37,7 +37,14 @@ jobs:
           language-limit: '6'
           commit: 'true'
 
+      - name: Verify achievement data token
+        timeout-minutes: 1
+        env:
+          GH_TOKEN: ${{ secrets.SUMMARY_CARDS_TOKEN }}
+        run: gh api user --silent
+
       - name: Generate compact achievement badges
+        timeout-minutes: 5
         uses: lowlighter/metrics@65836723097537a54cd8eb90f61839426b4266b6 # latest, pinned
         with:
           token: ${{ secrets.SUMMARY_CARDS_TOKEN }}
