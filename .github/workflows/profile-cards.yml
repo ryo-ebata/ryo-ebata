@@ -61,3 +61,5 @@ jobs:
           config_timezone: Asia/Tokyo
           config_animations: 'no'
           plugins_errors_fatal: 'yes'
+          debug: 'yes'
+          retries: '1'
