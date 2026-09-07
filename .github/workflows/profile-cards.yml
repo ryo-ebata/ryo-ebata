@@ -43,10 +43,21 @@ jobs:
           GH_TOKEN: ${{ secrets.SUMMARY_CARDS_TOKEN }}
         run: gh api user --silent
 
+      - name: Patch removed Projects classic API in Metrics
+        timeout-minutes: 5
+        # Temporary workaround for https://github.com/lowlighter/metrics/issues/1706.
+        # Keep the official image; alias Projects v2 to the existing response field.
+        run: |
+          docker build --tag metrics:3.34.0 - <<'DOCKERFILE'
+          FROM ghcr.io/lowlighter/metrics@sha256:257392f90340f916cb8b815026f259399f6b246d3eb7de38b58bfe7a07bd5b65
+          RUN node -e 'const fs = require("fs"); const path = "/metrics/source/plugins/achievements/queries/achievements.graphql"; const text = fs.readFileSync(path, "utf8"); const old = "projects(first:"; if (text.split(old).length !== 2) throw new Error("Expected one Projects classic query"); fs.writeFileSync(path, text.replace(old, "projects: projectsV2(first:"));'
+          DOCKERFILE
+
       - name: Generate compact achievement badges
         timeout-minutes: 5
         uses: lowlighter/metrics@65836723097537a54cd8eb90f61839426b4266b6 # latest, pinned
         with:
+          use_prebuilt_image: 'no' # Use the locally patched metrics:3.34.0 image.
           token: ${{ secrets.SUMMARY_CARDS_TOKEN }}
           committer_token: ${{ secrets.GITHUB_TOKEN }}
           committer_branch: ${{ github.ref_name }}
@@ -61,5 +72,4 @@ jobs:
           config_timezone: Asia/Tokyo
           config_animations: 'no'
           plugins_errors_fatal: 'yes'
-          debug: 'yes'
           retries: '1'
